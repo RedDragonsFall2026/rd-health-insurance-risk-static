@@ -94,3 +94,12 @@ async function calculateRisk() {
         document.getElementById('result-output').innerText = 'Error connecting to server. Make sure the Node.js server is running.';
     }
 }
+
+// Wake-up ping
+window.addEventListener('load', () => {
+    console.log('Pinging server to wake it up...')
+    fetch(serverUrl + '/ping')
+        .then(response => response.text())
+        .then(message => console.log('Ping response:', message))
+        .catch(error => console.warn('Ping failed (server may still be starting):', error))
+})
