@@ -114,12 +114,19 @@
         </form>
       </div>
 
-      <!-- Submit Button -->
+     
       <!-- Note: must add onclick function -->
-      <!-- Submit Button -->
+      <!-- Review and Submit Button -->
       <div class="submit">
+        <button id="review-button" onclick="showSummary()" autofocus>Summary of Inputs</button>
         <button id="submit-button" onclick="calculateRisk()" autofocus>Submit</button>
       </div>
+
+      <!-- Input Summary -->
+        <section id="input-summary" hidden>
+          <h2>Review Your Inputs</h2>
+            <p id="summary-output"></p>
+        </section>
 
       <!-- Results Display Section -->
       <section id="result-section">

@@ -43,6 +43,30 @@ function getDiseases() {
     return [diabetes, cancer, alzheimers]
 }
 
+// Function to show summary of inputs before submitting
+function showSummary() {
+     let age = getAge();
+    let feet = getHeightFeet();
+    let inches = getHeightInches();
+    let pounds = getWeight();
+    let systolic = getSystolic();
+    let diastolic = getDiastolic();
+    let diseases = getDiseases();
+
+    document.getElementById('summary-output').innerHTML = `
+        Age: ${age}<br>
+        Height: ${feet} ft ${inches} in<br>
+        Weight: ${pounds} lbs<br>
+        Systolic Blood Pressure: ${systolic}<br>
+        Diastolic Blood Pressure: ${diastolic}<br>
+        Diabetes in Family: ${diseases[0] ? 'Yes' : 'No'}<br>
+        Cancer in Family: ${diseases[1] ? 'Yes' : 'No'}<br>
+        Alzheimer's in Family: ${diseases[2] ? 'Yes' : 'No'}<br>
+    `;
+    
+    document.getElementById('input-summary').hidden = false;
+}
+
 // Main function triggered on submit button click
 async function calculateRisk() {
     let age = getAge();
