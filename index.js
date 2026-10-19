@@ -1,80 +1,78 @@
 // Function used to get the age of the patient
-function getAge()
-{
+function getAge() {
     return document.getElementById('age-id').value
 }
 
-// Function used to get the height of the patient (feet)
-function getHeightFeet()
-{
+function getHeightFeet() {
     return document.getElementById('height-feet-id').value
 }
 
-// Function used to get the height of the patient (inches)
-function getHeightInches()
-{
+function getHeightInches() {
     return document.getElementById('height-inches-id').value
 }
 
-// Function used to get the weight of the patient (lbs)
-function getWeight()
-{
+function getWeight() {
     return document.getElementById('weight-id').value
 }
 
-/*
-Function used to get the systolic bp of the patient
-
-5 possible return values:
-lt-120 : Less than 120
-120-129 : Between 120 and 129
-130-139 : Between 130 and 139
-gt-140 : Higher than 140
-gt-180 : Higher than 180
-*/
-function getSystolic()
-{
-    return document.getElementById('systolic-id').value
+function getSystolic() {
+    let val = document.getElementById('systolic-id').value;
+    // Map dropdown options to numerical values for the server
+    if (val === 'lt-120') return 110;
+    if (val === '120-129') return 125;
+    if (val === '130-139') return 135;
+    if (val === 'gt-140') return 145;
+    if (val === 'gt-180') return 185;
+    return 110;
 }
 
-/*
-Function used to get the diastolic bp of hte patient
-
-4 possible return values:
-lt-80 : Less than 80
-80-89 : Between 80 and 89
-gt-90 : Greater than 90
-gt-120 : Greater than 120
-*/
-function getDiastolic()
-{
-    return document.getElementById('diastolic-id').value
+function getDiastolic() {
+    let val = document.getElementById('diastolic-id').value;
+    // Map dropdown options to numerical values for the server
+    if (val === 'lt-80') return 75;
+    if (val === '80-89') return 85;
+    if (val === 'gt-90') return 95;
+    if (val === 'gt-120') return 125;
+    return 75;
 }
 
-/*
-Function used to get patient family disease history
-
-Returns an array of form
-[diabetes, cancer, alzheimers]
-where each value is either true or false
-*/
-function getDiseases()
-{
-    let diabetes = false   // Diabetes flag
-    let cancer = false     // Cancer flag
-    let alzheimers = false // Alzheimers flag
-
-    // Check diabetes
-    if(document.getElementById('diabetes').checked)
-        diabetes = true
-
-    // Check cancer
-    if(document.getElementById('cancer').checked)
-        cancer = true
-
-    // Check alzheimers
-    if(document.getElementById('alzheimers').checked)
-        alzheimers = true
-    
+function getDiseases() {
+    let diabetes = document.getElementById('diabetes').checked
+    let cancer = document.getElementById('cancer').checked
+    let alzheimers = document.getElementById('alzheimers').checked
     return [diabetes, cancer, alzheimers]
+}
+
+// Main function triggered on submit button click
+async function calculateRisk() {
+    let age = getAge();
+    let feet = getHeightFeet();
+    let inches = getHeightInches();
+    let pounds = getWeight();
+    let systolic = getSystolic();
+    let diastolic = getDiastolic();
+    let diseases = getDiseases();
+
+    // Construct server URL (update domain if hosted live on Azure)
+    const serverUrl = `http://localhost:3000/risk-category/${age}/${feet}/${inches}/${pounds}/${systolic}/${diastolic}/${diseases[0]}/${diseases[1]}/${diseases[2]}`;
+
+    console.log(`Calling API: ${serverUrl}`);
+
+    try {
+        let response = await fetch(serverUrl);
+        console.log(`API response status received: ${response.status}`);
+
+        let data = await response.json();
+        console.log('API response data:', data);
+
+        // Display results on the webpage UI
+        document.getElementById('result-output').innerHTML = `
+            <strong>Total Score:</strong> ${data.totalScore} <br>
+            <strong>Risk Category:</strong> ${data.riskCategory} <br>
+            <small>Breakdown - Age: ${data.breakdown.agePoints}pts, BMI: ${data.breakdown.bmiPoints}pts, BP: ${data.breakdown.bpPoints}pts, Family: ${data.breakdown.familyPoints}pts</small>
+        `;
+    } catch (error) {
+        console.error('Error connecting to the risk server:', error);
+        document.getElementById('result-output').innerText = 'Error connecting to server. Make sure the Node.js server is running.';
+    }
 }
