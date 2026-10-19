@@ -1,3 +1,5 @@
+const serverUrl = 'https://rd-health-insurance-risk-server-c4cvcwcrfjbtd2ch.centralus-01.azurewebsites.net'
+
 // Function used to get the age of the patient
 function getAge() {
     return document.getElementById('age-id').value
@@ -77,13 +79,29 @@ async function calculateRisk() {
     let diastolic = getDiastolic();
     let diseases = getDiseases();
 
-    // Construct server URL (update domain if hosted live on Azure)
-    const serverUrl = `http://localhost:3000/risk-category/${age}/${feet}/${inches}/${pounds}/${systolic}/${diastolic}/${diseases[0]}/${diseases[1]}/${diseases[2]}`;
+    let bmiCategory;
 
-    console.log(`Calling API: ${serverUrl}`);
+    try
+    {
+        let response = await fetch(serverUrl + `/bmi/${feet}/${inches}/${pounds}`)
+        console.log(`API response status received: ${response.status}`);
+
+        bmiCategory = await response.text();
+        console.log(`API response text: ${bmiCategory}`)
+    }
+    catch (error)
+    {
+        console.error('Error connecting to the risk server:', error)
+        document.getElementById('result-output').innerText = 'Error connecting to server. Make sure the Node.js server is running.'
+    }
+
+    // Construct server URL (update domain if hosted live on Azure)
+    const riskAPI = serverUrl + `/risk-category/${age}/${bmiCategory}/${systolic}/${diastolic}/${diseases[0]}/${diseases[1]}/${diseases[2]}`;
+
+    console.log(`Calling API: ${riskAPI}`);
 
     try {
-        let response = await fetch(serverUrl);
+        let response = await fetch(riskAPI);
         console.log(`API response status received: ${response.status}`);
 
         let data = await response.json();
@@ -100,3 +118,12 @@ async function calculateRisk() {
         document.getElementById('result-output').innerText = 'Error connecting to server. Make sure the Node.js server is running.';
     }
 }
+
+// Wake-up ping
+window.addEventListener('load', () => {
+    console.log('Pinging server to wake it up...')
+    fetch(serverUrl + '/ping')
+        .then(response => response.text())
+        .then(message => console.log('Ping response:', message))
+        .catch(error => console.warn('Ping failed (server may still be starting):', error))
+})
