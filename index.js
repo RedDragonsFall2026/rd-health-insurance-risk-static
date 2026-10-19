@@ -60,7 +60,10 @@ async function calculateRisk() {
     try
     {
         let response = await fetch(serverUrl + `/bmi/${feet}/${inches}/${pounds}`)
+        console.log(`API response status received: ${response.status}`);
+
         bmiCategory = await response.text();
+        console.log(`API response text: ${bmiCategory}`)
     }
     catch (error)
     {
